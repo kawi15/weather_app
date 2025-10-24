@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../enums/units.dart';
@@ -11,6 +12,15 @@ class WeatherRepository {
 
   Future<WeatherResponse> fetchWeather(double lat, double lng, Units units, String lang) async {
     final apiKey = dotenv.env['OPENWEATHER_API_KEY'] ?? '';
-    return await api.getWeather(lat, lng, apiKey, units: units.value, lang: lang);
+    try {
+      return await api.getWeather(lat, lng, apiKey, units: units.value, lang: lang);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw Exception('API key invalid');
+      }
+      throw e;
+    }
+
+
   }
 }
