@@ -47,7 +47,6 @@ class _WeatherPageState extends State<WeatherPage> {
     }
   }
   //TODO napisać parę testów
-  //TODO poprawić readme
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;

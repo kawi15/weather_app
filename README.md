@@ -13,5 +13,5 @@ Aby aplikacja działała poprawnie, potrzebny jest klucz API z OpenWeatherMap.
 
 ### 2. Utwórz plik `.env`
 
-W katalogu głównym projektu utwórz plik `.env` i wklej do niego:
+W katalogu głównym projektu utwórz plik `.env` i wklej do niego:  
 ```OPENWEATHER_API_KEY='twój_klucz_api'```
