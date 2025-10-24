@@ -46,7 +46,6 @@ class _WeatherPageState extends State<WeatherPage> {
           lang: context.read<LanguageCubit>().state.languageCode));
     }
   }
-  //TODO napisać parę testów
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
