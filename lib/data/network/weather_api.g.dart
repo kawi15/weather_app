@@ -27,7 +27,7 @@ class _WeatherApi implements WeatherApi {
     double lon,
     String apiKey, {
     String? units,
-    String? lang = "pl",
+    String? lang,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{

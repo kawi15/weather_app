@@ -1,0 +1,22 @@
+{
+  "appHeader": "Aplikacja pogodowa",
+  "@appHeader": {},
+  "labelTextField": "Wprowadź nazwę miasta",
+  "@labelTextField": {},
+  "downloadWeather": "Pobierz pogodę",
+  "@downloadWeather": {},
+  "error": "Błąd",
+  "@error": {},
+  "city": "Miasto",
+  "@city": {},
+  "failedToGetLocation": "Nie udało się pobrać lokalizacji. Wprowadź nazwę miasta",
+  "@failedToGetLocation": {},
+  "addedToFav": "dodano do ulubionych",
+  "@addedToFav": {},
+  "favoriteCities": "Ulubione miasta",
+  "@favoriteCities": {},
+  "noFavoriteCities": "Brak ulubionych miast",
+  "@noFavoriteCities": {},
+  "humidity": "Wilgotność",
+  "@humidity": {}
+}

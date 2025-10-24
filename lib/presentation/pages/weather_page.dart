@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/enums/units.dart';
 import 'package:weather/presentation/blocs/units/units_cubit.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../blocs/favorite/favorites_bloc.dart';
+import '../blocs/language/language_cubit.dart';
 import '../blocs/weather/weather_bloc.dart';
 import 'favorites_page.dart';
 
@@ -24,9 +26,11 @@ class _WeatherPageState extends State<WeatherPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final unitsCubit = context.read<UnitsCubit>();
+      final languageCubit = context.read<LanguageCubit>();
       await unitsCubit.loadUnits();
       final units = unitsCubit.state;
-      context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(units: units));
+      final lang = languageCubit.state;
+      context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(units: units, lang: lang.languageCode));
     });
   }
 
@@ -35,18 +39,19 @@ class _WeatherPageState extends State<WeatherPage> {
       context.read<WeatherBloc>().add(FetchWeatherByCoordsEvent(
           city: city,
           units: context.read<UnitsCubit>().state,
-          lang: 'pl'));
+          lang: context.read<LanguageCubit>().state.languageCode));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final local = AppLocalizations.of(context)!;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-              'Pogoda',
-              style: const TextStyle(color: Colors.white)
+          title: Text(
+              local.appHeader,
+              style: const TextStyle(color: Colors.white, fontSize: 20)
           ),
           backgroundColor: Colors.deepPurple,
           actions: [
@@ -74,9 +79,64 @@ class _WeatherPageState extends State<WeatherPage> {
                           context.read<WeatherBloc>().add(FetchWeatherByCoordsEvent(
                               city: state.weather.name,
                               units: selected,
-                              lang: 'pl'));
+                              lang: context.read<LanguageCubit>().state.languageCode
+                          ));
                         } else {
-                          context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(units: selected));
+                          context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(
+                              units: selected,
+                              lang: context.read<LanguageCubit>().state.languageCode
+                          ));
+                        }
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
+            SizedBox(width: 8),
+            BlocBuilder<LanguageCubit, Locale>(
+              builder: (context, locale) {
+                return DropdownButtonHideUnderline(
+                  child: DropdownButton<Locale>(
+                    value: locale,
+                    dropdownColor: Colors.blueGrey[900],
+                    items: const [
+                      DropdownMenuItem(
+                        value: Locale('en'),
+                        child: Row(
+                          children: [
+                            Text('🇬🇧 ', style: TextStyle(fontSize: 16)),
+                            SizedBox(width: 8),
+                            Text('English', style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: Locale('pl'),
+                        child: Row(
+                          children: [
+                            Text('🇵🇱 ', style: TextStyle(fontSize: 16)),
+                            SizedBox(width: 8),
+                            Text('Polski', style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onChanged: (selectedLocale) {
+                      if (selectedLocale != null) {
+                        context.read<LanguageCubit>().changeLanguage(selectedLocale);
+                        final state = context.read<WeatherBloc>().state;
+                        if (state is WeatherLoaded) {
+                          context.read<WeatherBloc>().add(FetchWeatherByCoordsEvent(
+                              city: state.weather.name,
+                              units: context.read<UnitsCubit>().state,
+                              lang: selectedLocale.languageCode
+                          ));
+                        } else {
+                          context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(
+                              units: context.read<UnitsCubit>().state,
+                              lang: selectedLocale.languageCode
+                          ));
                         }
                       }
                     },
@@ -92,22 +152,21 @@ class _WeatherPageState extends State<WeatherPage> {
             children: [
               TextField(
                 controller: _controller,
-                decoration: const InputDecoration(
-                  labelText: 'Podaj miasto',
+                decoration: InputDecoration(
+                  labelText: local.labelTextField,
                 ),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () => _fetchWeather(_controller.text.trim()),
-                child: const Text('Pobierz pogodę'),
+                child: Text(local.downloadWeather),
               ),
               const SizedBox(height: 24),
               Expanded(
                 child: BlocBuilder<WeatherBloc, WeatherState>(
                   builder: (context, state) {
                     if (state is WeatherInitial) {
-                      return const Center(
-                          child: Text('Wpisz nazwę miasta i kliknij „Pobierz”'));
+                      return const Center(child: CircularProgressIndicator());
                     } else if (state is WeatherLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is WeatherLoaded) {
@@ -122,14 +181,14 @@ class _WeatherPageState extends State<WeatherPage> {
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             Text('${w.main.temp} ${state.units.label}'),
-                            Text('Wilgotność: ${w.main.humidity}%'),
+                            Text('${local.humidity}: ${w.main.humidity}%'),
                             Text(w.weather.first.description),
                           ],
                         ),
                       );
                     } else if (state is WeatherError) {
                       return Center(
-                          child: Text('Błąd: ${state.message}',
+                          child: Text('${local.error}: ${state.message}',
                               style: const TextStyle(color: Colors.red)));
                     } else if (state is WeatherLocationDenied) {
                       return Padding(
@@ -137,23 +196,23 @@ class _WeatherPageState extends State<WeatherPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Nie udało się pobrać lokalizacji.\nWpisz nazwę miasta:',
+                            Text(
+                              local.failedToGetLocation,
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 16),
                             ),
                             const SizedBox(height: 16),
                             TextField(
                               controller: _controller,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: 'Miasto',
+                                labelText: local.city,
                               ),
                             ),
                             const SizedBox(height: 12),
                             ElevatedButton(
                               onPressed: () => _fetchWeather(_controller.text.trim()),
-                              child: const Text('Pobierz pogodę'),
+                              child: Text(local.downloadWeather),
                             ),
                           ],
                         ),
@@ -179,7 +238,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       final city = state.weather.name;
                       context.read<FavoritesBloc>().add(AddFavoriteEvent(city));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('$city dodane do ulubionych')),
+                        SnackBar(content: Text('$city ${local.addedToFav}')),
                       );
                     }
                   },

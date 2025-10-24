@@ -6,11 +6,11 @@ class FetchWeatherByCoordsEvent extends WeatherEvent {
   final String city;
   final Units units;
   final String lang;
-  FetchWeatherByCoordsEvent({required this.city, required this.units, this.lang = 'pl'});
+  FetchWeatherByCoordsEvent({required this.city, required this.units, required this.lang});
 }
 
 class FetchWeatherForCurrentLocationEvent extends WeatherEvent {
   final String lang;
   final Units units;
-  FetchWeatherForCurrentLocationEvent({required this.units, this.lang = 'pl'});
+  FetchWeatherForCurrentLocationEvent({required this.units, required this.lang});
 }

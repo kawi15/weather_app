@@ -1,0 +1,22 @@
+{
+  "appHeader": "Weather app",
+  "@appHeader": {},
+  "labelTextField": "Enter the city",
+  "@labelTextField": {},
+  "downloadWeather": "Download weather",
+  "@downloadWeather": {},
+  "error": "Error",
+  "@error": {},
+  "city": "City",
+  "@city": {},
+  "failedToGetLocation": "Failed to load location. Please enter city name",
+  "@failedToGetLocation": {},
+  "addedToFav": "added to favorites",
+  "@addedToFav": {},
+  "favoriteCities": "Favorite cities",
+  "@favoriteCities": {},
+  "noFavoriteCities": "No favorite cities",
+  "@noFavoriteCities": {},
+  "humidity": "Humidity",
+  "@humidity": {}
+}

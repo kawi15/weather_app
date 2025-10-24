@@ -14,7 +14,7 @@ class WeatherViewModel {
       double lat,
       double lon, {
         required Units units,
-        String lang = 'pl',
+        required String lang,
       }) async {
     return await repository.fetchWeather(lat, lon, units, lang);
   }
@@ -22,7 +22,7 @@ class WeatherViewModel {
   Future<WeatherResponse> getWeatherForCity(
       String city, {
         required Units units,
-        String lang = 'pl',
+        required String lang,
       }) async {
     final (lat, lon) = await locationService.getCoordinatesFromCity(city);
     return await getWeatherByCoords(lat, lon, units: units, lang: lang);
