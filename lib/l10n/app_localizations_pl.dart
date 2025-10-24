@@ -38,4 +38,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get humidity => 'Wilgotność';
+
+  @override
+  String get openSettings => 'Otwórz ustawienia';
 }

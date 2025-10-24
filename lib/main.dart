@@ -79,6 +79,16 @@ class _MyAppState extends State<MyApp> {
             supportedLocales: AppLocalizations.supportedLocales,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  minimumSize: const Size.fromHeight(48),
+                )
+              )
             ),
             home: const WeatherPage(),
           );

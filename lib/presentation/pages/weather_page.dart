@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather/data/enums/units.dart';
 import 'package:weather/presentation/blocs/units/units_cubit.dart';
+import 'package:weather/presentation/widgets/language_dropdown.dart';
+import 'package:weather/presentation/widgets/units_dropdown.dart';
+import 'package:weather/presentation/widgets/weather_error.dart';
+import 'package:weather/presentation/widgets/weather_no_location_widget.dart';
+import 'package:weather/presentation/widgets/weather_widget.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../blocs/favorite/favorites_bloc.dart';
@@ -18,7 +22,7 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
 
 
   @override
@@ -42,7 +46,8 @@ class _WeatherPageState extends State<WeatherPage> {
           lang: context.read<LanguageCubit>().state.languageCode));
     }
   }
-
+  //TODO napisać parę testów
+  //TODO poprawić readme
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
@@ -55,95 +60,9 @@ class _WeatherPageState extends State<WeatherPage> {
           ),
           backgroundColor: Colors.deepPurple,
           actions: [
-            BlocBuilder<UnitsCubit, Units>(
-              builder: (context, units) {
-                return DropdownButtonHideUnderline(
-                  child: DropdownButton<Units>(
-                    value: units,
-                    icon: const Icon(Icons.thermostat_outlined, color: Colors.white),
-                    dropdownColor: Colors.blueGrey[900],
-                    items: Units.values.map((unit) {
-                      return DropdownMenuItem<Units>(
-                        value: unit,
-                        child: Text(
-                          unit.label,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (selected) {
-                      if (selected != null) {
-                        context.read<UnitsCubit>().updateUnits(selected);
-                        final state = context.read<WeatherBloc>().state;
-                        if (state is WeatherLoaded) {
-                          context.read<WeatherBloc>().add(FetchWeatherByCoordsEvent(
-                              city: state.weather.name,
-                              units: selected,
-                              lang: context.read<LanguageCubit>().state.languageCode
-                          ));
-                        } else {
-                          context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(
-                              units: selected,
-                              lang: context.read<LanguageCubit>().state.languageCode
-                          ));
-                        }
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
+            UnitsDropdown(),
             SizedBox(width: 8),
-            BlocBuilder<LanguageCubit, Locale>(
-              builder: (context, locale) {
-                return DropdownButtonHideUnderline(
-                  child: DropdownButton<Locale>(
-                    value: locale,
-                    dropdownColor: Colors.blueGrey[900],
-                    items: const [
-                      DropdownMenuItem(
-                        value: Locale('en'),
-                        child: Row(
-                          children: [
-                            Text('🇬🇧 ', style: TextStyle(fontSize: 16)),
-                            SizedBox(width: 8),
-                            Text('English', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: Locale('pl'),
-                        child: Row(
-                          children: [
-                            Text('🇵🇱 ', style: TextStyle(fontSize: 16)),
-                            SizedBox(width: 8),
-                            Text('Polski', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                    ],
-                    onChanged: (selectedLocale) {
-                      if (selectedLocale != null) {
-                        context.read<LanguageCubit>().changeLanguage(selectedLocale);
-                        final state = context.read<WeatherBloc>().state;
-                        if (state is WeatherLoaded) {
-                          context.read<WeatherBloc>().add(FetchWeatherByCoordsEvent(
-                              city: state.weather.name,
-                              units: context.read<UnitsCubit>().state,
-                              lang: selectedLocale.languageCode
-                          ));
-                        } else {
-                          context.read<WeatherBloc>().add(FetchWeatherForCurrentLocationEvent(
-                              units: context.read<UnitsCubit>().state,
-                              lang: selectedLocale.languageCode
-                          ));
-                        }
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
+            LanguageDropdown(),
           ],
         ),
         body: Padding(
@@ -151,72 +70,33 @@ class _WeatherPageState extends State<WeatherPage> {
           child: Column(
             children: [
               TextField(
-                controller: _controller,
+                controller: controller,
                 decoration: InputDecoration(
                   labelText: local.labelTextField,
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () => _fetchWeather(_controller.text.trim()),
-                child: Text(local.downloadWeather),
+              ElevatedButton.icon(
+                onPressed: () => _fetchWeather(controller.text.trim()),
+                icon: const Icon(Icons.cloud_outlined),
+                label: Text(local.downloadWeather),
               ),
               const SizedBox(height: 24),
               Expanded(
                 child: BlocBuilder<WeatherBloc, WeatherState>(
                   builder: (context, state) {
-                    if (state is WeatherInitial) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is WeatherLoading) {
+                    if (state is WeatherInitial || state is WeatherLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is WeatherLoaded) {
-                      final w = state.weather;
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              w.name,
-                              style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                            Text('${w.main.temp} ${state.units.label}'),
-                            Text('${local.humidity}: ${w.main.humidity}%'),
-                            Text(w.weather.first.description),
-                          ],
-                        ),
-                      );
+                      return WeatherWidget(state: state);
                     } else if (state is WeatherError) {
-                      return Center(
-                          child: Text('${local.error}: ${state.message}',
-                              style: const TextStyle(color: Colors.red)));
+                      return WeatherErrorWidget(message: '${local.error}: ${state.message}');
                     } else if (state is WeatherLocationDenied) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              local.failedToGetLocation,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _controller,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: local.city,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: () => _fetchWeather(_controller.text.trim()),
-                              child: Text(local.downloadWeather),
-                            ),
-                          ],
-                        ),
-                      );
+                      return WeatherNoLocationWidget();
                     } else {
                       return const SizedBox.shrink();
                     }
@@ -252,7 +132,7 @@ class _WeatherPageState extends State<WeatherPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const FavoritesPage()),
+                  MaterialPageRoute(builder: (_) => FavoritesPage(controller: controller)),
                 );
                 context.read<FavoritesBloc>().add(LoadFavoritesEvent());
               },

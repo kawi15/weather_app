@@ -52,6 +52,7 @@ dependencies:
     sdk: flutter
   hydrated_bloc: ^10.1.1
   path_provider: ^2.1.5
+  app_settings: ^6.1.1
 
 dev_dependencies:
   flutter_test:

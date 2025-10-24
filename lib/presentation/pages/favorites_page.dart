@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weather/presentation/blocs/language/language_cubit.dart';
 import '../blocs/favorite/favorites_bloc.dart';
 import '../blocs/units/units_cubit.dart';
 import '../blocs/weather/weather_bloc.dart';
 import '../../l10n/app_localizations.dart';
 
 class FavoritesPage extends StatelessWidget {
-  const FavoritesPage({super.key});
+  final TextEditingController controller;
+
+  const FavoritesPage({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,8 @@ class FavoritesPage extends StatelessWidget {
                     context.read<WeatherBloc>().add(FetchWeatherByCoordsEvent(
                         city: city.name,
                         units: context.read<UnitsCubit>().state,
-                        lang: 'pl'));
+                        lang: context.read<LanguageCubit>().state.languageCode));
+                    controller.clear();
                     Navigator.pop(context);
                   },
                   trailing: IconButton(

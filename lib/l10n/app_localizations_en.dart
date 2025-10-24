@@ -38,4 +38,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get humidity => 'Humidity';
+
+  @override
+  String get openSettings => 'Open settings';
 }

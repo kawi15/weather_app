@@ -157,6 +157,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Humidity'**
   String get humidity;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSettings;
 }
 
 class _AppLocalizationsDelegate

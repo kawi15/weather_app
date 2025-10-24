@@ -18,5 +18,7 @@
   "noFavoriteCities": "Brak ulubionych miast",
   "@noFavoriteCities": {},
   "humidity": "Wilgotność",
-  "@humidity": {}
+  "@humidity": {},
+  "openSettings": "Otwórz ustawienia",
+  "@openSettings": {}
 }
