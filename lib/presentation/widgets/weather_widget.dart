@@ -25,7 +25,7 @@ class WeatherWidget extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.deepPurple.withOpacity(0.3),
+              color: Colors.deepPurple.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
