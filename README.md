@@ -1,16 +1,17 @@
-# weather
+# Weather app
 
-A weather app.
+Aplikacja pogodowa we Flutterze korzystająca z OpenWeather API.
 
-## Getting Started
+## Konfiguracja API Key
 
-This project is a starting point for a Flutter application.
+Aby aplikacja działała poprawnie, potrzebny jest klucz API z OpenWeatherMap.
 
-A few resources to get you started if this is your first Flutter project:
+### 1. Uzyskaj klucz
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Zarejestruj się na [OpenWeatherMap](https://openweathermap.org/api).
+2. W panelu użytkownika wygeneruj swój klucz API.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 2. Utwórz plik `.env`
+
+W katalogu głównym projektu utwórz plik `.env` i wklej do niego:
+OPENWEATHER_API_KEY='twój_klucz_api'
